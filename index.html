@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PrintAnts · Red Inteligente de Impresión 3D</title>
+  <meta name="description" content="PrintAnts: Cotiza tus impresiones 3D al instante con la red de talleres y fabricantes especializados.">
+  <link rel="stylesheet" href="estilos.css">
+  <link rel="icon" id="faviconLink" href="icon-light.png" type="image/png">
+</head>
+<body>
+
+  <!-- Encabezado y Navegación Principal -->
+  <header class="app-header">
+    <div class="header-contenedor">
+      <a href="#inicio" class="marca" aria-label="PrintAnts Inicio">
+        <img src="logo-dark.png" alt="PrintAnts" class="marca-logo-img logo-oscuro">
+        <img src="logo-light.png" alt="PrintAnts" class="marca-logo-img logo-claro">
+      </a>
+
+      <nav id="menu" class="menu-principal" aria-label="Navegación principal">
+        <!-- Generado dinámicamente por app.js -->
+      </nav>
+
+      <div class="header-acciones">
+        <div class="estado-conexion" id="estadoPhp" title="Conexión con el backend PHP (guardar.php)">
+          <span class="punto-estado"></span>
+          <span>PHP Activo</span>
+        </div>
+
+        <button type="button" class="btn-icono" id="btnTema" aria-label="Cambiar tema claro u oscuro">
+          <span id="iconoTema">Oscuro</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Secciones (SPA por Hash) -->
+  <main>
+
+    <!-- ==============================================================
+         1. SECCIÓN INICIO / LANDING
+         ============================================================== -->
+    <section data-p="inicio">
+      <div class="hero">
+        <div class="hero-emblema-contenedor">
+          <img src="hormiga-oscuro.png" alt="Hormiga PrintAnts" class="hero-emblema-img logo-oscuro">
+          <img src="hormiga-claro.png" alt="Hormiga PrintAnts" class="hero-emblema-img logo-claro">
+        </div>
+        <div class="hero-insignia">
+          <span>PrintAnts · Red Robótica de Fabricación Aditiva</span>
+        </div>
+        <h1>Cotiza tu impresión 3D en segundos con la colonia de talleres PrintAnts</h1>
+        <p>Calcula con exactitud tiempos de máquina, peso de filamento, margen comercial y genera presupuestos oficiales listos para WhatsApp o producción.</p>
+        
+        <div class="hero-botones">
+          <a class="btn" href="#cotizador">Empezar a cotizar ahora</a>
+          <a class="btn claro" href="#vendedores">Explorar talleres y precios</a>
+        </div>
+
+        <!-- Estadísticas en vivo -->
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="statVendedores">3</div>
+            <div class="hero-stat-label">Talleres Activos</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="statMateriales">6</div>
+            <div class="hero-stat-label">Materiales (PLA, PETG, TPU...)</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="statCotizaciones">0</div>
+            <div class="hero-stat-label">Cotizaciones Guardadas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pasos explicativos -->
+      <div class="cuadricula cuadricula-3 pasos-contenedor">
+        <div class="tarjeta">
+          <div class="paso-numero">1</div>
+          <h2>Elige el taller 3D</h2>
+          <p class="suave">Compara calificaciones, costo por hora y precios de bobina de cada fabricante local.</p>
+        </div>
+        <div class="tarjeta">
+          <div class="paso-numero">2</div>
+          <h2>Ingresa tu pieza</h2>
+          <p class="suave">Introduce el tiempo y peso de tu laminador (Cura, PrusaSlicer, Bambu Studio) o una plantilla.</p>
+        </div>
+        <div class="tarjeta">
+          <div class="paso-numero">3</div>
+          <h2>Guarda y contacta</h2>
+          <p class="suave">Guarda tu cotización en el servidor PHP, genera el comprobante o inicia chat por WhatsApp.</p>
+        </div>
+      </div>
+
+      <!-- Fórmula transparente -->
+      <div class="tarjeta separada">
+        <h2>¿Cómo se calcula el precio final?</h2>
+        <p class="suave">Nuestro algoritmo desglosa con total transparencia la amortización de máquina, consumo neto de material y margen comercial:</p>
+        <div class="formula-box">
+          Costo = [(Horas × Tarifa/Hora) + (Gramos × Precio_kg / 1000)] × (1 + Margen% / 100) × Cantidad
+        </div>
+        <p class="nota">También se aplican descuentos por volumen a partir de 3 y 10 unidades automáticamente.</p>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         2. SECCIÓN VENDEDORES / DIRECTORIO DE TALLERES
+         ============================================================== -->
+    <section data-p="vendedores" hidden>
+      <div class="cabecera-seccion">
+        <h1>Talleres y Vendedores 3D</h1>
+        <p class="suave">Explora talleres especializados, compara tarifas y márcalos como favoritos para cotizar al instante.</p>
+      </div>
+
+      <!-- Barra de búsqueda y filtros -->
+      <div class="filtros-barra">
+        <div class="filtro-busqueda">
+          <input type="text" id="buscarVendedor" placeholder="Buscar por nombre o ciudad..." aria-label="Buscar vendedor">
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <select id="filtroMaterial" style="width:auto;" aria-label="Filtrar por material">
+            <option value="todos">Todos los materiales</option>
+            <option value="PLA">PLA</option>
+            <option value="PETG">PETG</option>
+            <option value="ABS">ABS</option>
+            <option value="TPU">TPU (Flexible)</option>
+            <option value="Resina">Resina UV</option>
+          </select>
+          <select id="ordenarVendedores" style="width:auto;" aria-label="Ordenar vendedores">
+            <option value="rating">Mejor calificados</option>
+            <option value="hora_asc">Menor precio por hora</option>
+            <option value="nombre">Orden alfabético</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cuadricula" id="lista">
+        <!-- Renderizado dinámicamente -->
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         3. SECCIÓN COTIZADOR PROFESIONAL
+         ============================================================== -->
+    <section data-p="cotizador" hidden>
+      <div class="cabecera-seccion">
+        <h1>Cotizador de Impresión 3D</h1>
+        <p class="suave">Calcula el presupuesto exacto según los parámetros de tu pieza o selecciona una plantilla predeterminada.</p>
+      </div>
+
+      <div class="tarjeta" id="sinFavoritos" hidden>
+        <h2>No tienes vendedores disponibles</h2>
+        <p class="suave">Para calcular tu presupuesto, selecciona tus talleres favoritos en la pestaña Vendedores.</p>
+        <a class="btn claro" style="width:auto; display:inline-block; margin-top:8px;" href="#vendedores">Ir a Directorio de Vendedores</a>
+      </div>
+
+      <div id="contenido">
+        <div class="cuadricula-2">
+
+          <!-- Columna Izquierda: Parámetros de la pieza -->
+          <div class="tarjeta">
+            <h2>1. Parámetros de la Pieza</h2>
+
+            <label for="vendedor">Taller o Fabricante Seleccionado</label>
+            <select id="vendedor" aria-label="Seleccionar vendedor"></select>
+
+            <label>Plantillas Rápidas (o ingresa valores personalizados)</label>
+            <div class="plantillas-grid">
+              <button type="button" class="btn-plantilla" data-h="4" data-m="0" data-g="85" data-n="Soporte Audífonos">
+                <strong>Audífonos</strong>
+                <span>4h · 85g</span>
+              </button>
+              <button type="button" class="btn-plantilla" data-h="2" data-m="30" data-g="45" data-n="Carcasa Raspberry">
+                <strong>Carcasa</strong>
+                <span>2.5h · 45g</span>
+              </button>
+              <button type="button" class="btn-plantilla" data-h="1" data-m="15" data-g="20" data-n="Miniatura 28mm">
+                <strong>Miniatura</strong>
+                <span>1.2h · 20g</span>
+              </button>
+              <button type="button" class="btn-plantilla" data-h="6" data-m="0" data-g="130" data-n="Pieza Mecánica">
+                <strong>Mecánica</strong>
+                <span>6h · 130g</span>
+              </button>
+            </div>
+
+            <label class="interruptor">
+              <input type="checkbox" id="interruptor" checked>
+              <span class="pista"></span>
+              <span>Activar edición manual y cálculo detallado</span>
+            </label>
+
+            <div id="manual">
+              <label for="nombrePieza">Nombre o referencia de la pieza</label>
+              <input id="nombrePieza" type="text" value="Prototipo 3D Personalizado" maxlength="60">
+
+              <label for="material">Material de impresión</label>
+              <select id="material" aria-label="Material de impresión"></select>
+
+              <div class="fila">
+                <div>
+                  <label for="horas">Horas de corte</label>
+                  <input id="horas" type="number" min="0" step="1" value="3">
+                </div>
+                <div>
+                  <label for="minutos">Minutos de corte</label>
+                  <input id="minutos" type="number" min="0" max="59" step="1" value="15">
+                </div>
+              </div>
+
+              <div class="fila">
+                <div>
+                  <label for="gramos">Peso estimado (g)</label>
+                  <input id="gramos" type="number" min="1" step="1" value="70">
+                </div>
+                <div>
+                  <label for="cantidad">Cantidad de unidades</label>
+                  <input id="cantidad" type="number" min="1" max="100" step="1" value="1">
+                </div>
+              </div>
+
+              <!-- Control asistido de densidad de relleno (infill) -->
+              <div style="margin-top:10px;">
+                <div class="campo-ayuda">
+                  <label for="infillRelleno" style="margin:0;">Densidad de Relleno (Infill)</label>
+                  <span id="infillTexto">20% (Estándar recomendado)</span>
+                </div>
+                <div class="rango-infill">
+                  <input type="range" id="infillRelleno" min="10" max="100" step="5" value="20">
+                  <span class="rango-valor" id="infillPorcentaje">20%</span>
+                </div>
+              </div>
+
+              <p class="nota">Valores orientativos provistos por tu slicer (Cura, PrusaSlicer, Bambu Studio, OrcaSlicer).</p>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Resumen financiero y acciones -->
+          <div class="tarjeta tarjeta-destacada">
+            <h2>2. Presupuesto y Taller</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:1.1rem;" id="vNombre">Selecciona un taller</span>
+              <div class="estrellas" id="resenaVendedor"></div>
+            </div>
+
+            <!-- Desglose de costos -->
+            <div id="resultado">
+              <div class="linea">
+                <span class="suave">Costo de máquina (tiempo)</span>
+                <b id="costoTiempo" class="mono">$0</b>
+              </div>
+              <div class="linea">
+                <span class="suave">Costo de material consumido</span>
+                <b id="costoMaterial" class="mono">$0</b>
+              </div>
+              <div class="linea">
+                <span class="suave">Margen del taller</span>
+                <b id="costoMargen" class="mono">$0</b>
+              </div>
+              <div class="linea" id="filaDescuento" hidden>
+                <span style="color:var(--exito);">Descuento por volumen</span>
+                <b id="costoDescuento" class="mono" style="color:var(--exito);">- $0</b>
+              </div>
+
+              <!-- Barra visual de desglose -->
+              <div class="desglose-barra" title="Proporción: Tiempo (Azul) / Material (Cyan) / Margen (Ámbar)">
+                <div class="desglose-tiempo" id="barraTiempo" style="width: 45%;"></div>
+                <div class="desglose-material" id="barraMaterial" style="width: 35%;"></div>
+                <div class="desglose-margen" id="barraMargen" style="width: 20%;"></div>
+              </div>
+              <div class="desglose-leyenda">
+                <span><span class="punto-leyenda" style="background:var(--primario);"></span> Tiempo</span>
+                <span><span class="punto-leyenda" style="background:var(--acento-cyan);"></span> Material</span>
+                <span><span class="punto-leyenda" style="background:var(--acento-ambar);"></span> Margen</span>
+              </div>
+
+              <!-- Total destacado -->
+              <div class="total-caja">
+                <div class="total-valor" id="total">$0</div>
+                <div class="total-etiqueta">Total estimado en pesos colombianos (COP)</div>
+              </div>
+
+              <p class="aviso error" id="sinMaterial" hidden></p>
+            </div>
+
+            <!-- Acciones principales -->
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+              <button type="button" class="btn exito" id="btnGuardarCotizacion">
+                Guardar Cotización en PHP
+              </button>
+              
+              <div class="fila">
+                <button type="button" class="btn" id="contactar">
+                  Chat con Taller
+                </button>
+                <button type="button" class="btn claro" id="btnVerComprobante">
+                  Comprobante / Ticket
+                </button>
+              </div>
+
+              <button type="button" class="btn claro" id="btnWhatsAppDirecto">
+                Contactar vía WhatsApp
+              </button>
+            </div>
+
+            <p class="aviso" id="telefono"></p>
+
+            <!-- Chat interactivo embebido -->
+            <div class="chat-contenedor" id="chat" hidden>
+              <div class="chat-cabecera">
+                <span id="chatTitulo">Chat de Cotización</span>
+                <button type="button" class="enlace" id="chatCerrar">Cerrar</button>
+              </div>
+              <div class="chat-mensajes" id="chatMensajes"></div>
+              <div class="chat-formulario">
+                <input id="chatTexto" maxlength="200" placeholder="Escribe tu consulta al taller..." aria-label="Mensaje para el taller">
+                <button type="button" class="btn sm" id="chatEnviar">Enviar</button>
+              </div>
+              <div class="caja-estrellas-rating">
+                <button type="button" class="btn claro sm" id="calificar">Calificar a este taller</button>
+                <div id="cajaEstrellas" hidden style="margin-top:10px;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tabla comparativa en tiempo real con otros talleres -->
+        <div class="tarjeta separada" id="comparacion">
+          <h2>Comparativa con Otros Talleres</h2>
+          <p class="suave">Mira cuánto cobrarían otros talleres registrados por esta misma pieza con el material seleccionado:</p>
+          <div id="listaComparacion"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         4. SECCIÓN HISTORIAL DE COTIZACIONES (PERSISTIDO EN PHP)
+         ============================================================== -->
+    <section data-p="historial" hidden>
+      <div class="cabecera-seccion" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1>Mis Cotizaciones Guardadas</h1>
+          <p class="suave">Historial de presupuestos almacenados de forma permanente a través de <code>guardar.php</code>.</p>
+        </div>
+        <div>
+          <button type="button" class="btn claro sm" id="btnExportarCotizaciones">Exportar JSON</button>
+        </div>
+      </div>
+
+      <div class="tarjeta" id="vacioCotizaciones" hidden>
+        <h2>Aún no has guardado cotizaciones</h2>
+        <p class="suave">Calcula tu presupuesto en el Cotizador y pulsa "Guardar Cotización en PHP" para registrarla aquí.</p>
+        <a class="btn" style="width:auto; display:inline-block; margin-top:8px;" href="#cotizador">Ir al Cotizador</a>
+      </div>
+
+      <div class="cotizaciones-lista" id="listaCotizacionesGuardadas">
+        <!-- Renderizado dinámico -->
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         5. SECCIÓN PANEL DE TALLER (PARA VENDEDORES)
+         ============================================================== -->
+    <section data-p="taller" hidden>
+      <div class="cabecera-seccion">
+        <h1>Mi Taller de Impresión 3D</h1>
+        <p class="suave">Configura las tarifas de tu máquina, tu margen comercial y los materiales que ofreces a los clientes.</p>
+      </div>
+
+      <div class="cuadricula-2">
+        <div class="tarjeta">
+          <h2>1. Tarifas y Amortización</h2>
+          
+          <label for="tHora">Tarifa de Máquina por Hora (COP)</label>
+          <input id="tHora" type="number" min="100" step="100" placeholder="Ej. 3000">
+
+          <label for="tMargen">Margen Comercial (%)</label>
+          <input id="tMargen" type="number" min="0" max="200" step="1" placeholder="Ej. 20">
+
+          <label for="tNota">Lema o descripción del taller</label>
+          <input id="tNota" maxlength="80" placeholder="Ej. Entregas express y garantía de tolerancia dimensional">
+
+          <label for="tCiudad">Ciudad de ubicación</label>
+          <input id="tCiudad" maxlength="40" placeholder="Ej. Bogotá / Medellín / Cali">
+        </div>
+
+        <div class="tarjeta">
+          <h2>2. Catálogo de Filamentos y Resinas</h2>
+          <div id="materiales"></div>
+
+          <div class="fila" style="margin-top:14px;">
+            <div>
+              <label for="nuevoNombre">Nuevo Material</label>
+              <input id="nuevoNombre" maxlength="25" placeholder="Ej. Nylon-CF / PEEK">
+            </div>
+            <div>
+              <label for="nuevoPrecio">Precio por kg (COP)</label>
+              <input id="nuevoPrecio" type="number" min="1000" step="1000" placeholder="Ej. 130000">
+            </div>
+          </div>
+          <button type="button" class="btn claro sm" id="agregar" style="margin-top:8px;">+ Agregar Material al Catálogo</button>
+        </div>
+      </div>
+
+      <div style="max-width:380px; margin:24px auto 0;">
+        <button type="button" class="btn exito" id="tGuardar">Guardar Cambios en Servidor PHP</button>
+        <p class="aviso" id="mensaje" style="text-align:center;"></p>
+      </div>
+    </section>
+
+    <!-- ==============================================================
+         6. SECCIÓN CUENTA Y AUTENTICACIÓN
+         ============================================================== -->
+    <section data-p="cuenta" hidden>
+      <div class="cabecera-seccion">
+        <h1>Gestión de Cuenta y Perfil</h1>
+        <p class="suave">Inicia sesión, regístrate como cliente o abre tu perfil como taller de impresión 3D.</p>
+      </div>
+
+      <div class="tarjeta" id="estado"></div>
+
+      <!-- Tarjeta de Acceso / Login -->
+      <div class="tarjeta separada" id="acceso" style="max-width:480px; margin-left:auto; margin-right:auto;">
+        <div class="pestanas">
+          <button type="button" id="pestanaEntrar" class="activa">Iniciar Sesión</button>
+          <button type="button" id="pestanaCrear">Crear Cuenta Nueva</button>
+        </div>
+
+        <label for="correo">Correo Electrónico</label>
+        <input id="correo" type="email" autocomplete="email" placeholder="ejemplo@correo.com">
+
+        <label for="clave">Contraseña (mínimo 6 caracteres)</label>
+        <input id="clave" type="password" autocomplete="current-password" placeholder="••••••••">
+
+        <button type="button" class="btn" id="entrar" style="margin-top:16px;">Iniciar Sesión</button>
+        <p class="aviso" id="mensajeAcceso"></p>
+      </div>
+
+      <!-- Tarjeta de Edición de Perfil -->
+      <div class="tarjeta separada" id="registro" hidden style="max-width:650px; margin-left:auto; margin-right:auto;">
+        <h2 id="tituloRegistro">Mi Información de Registro</h2>
+
+        <label for="rol">Tipo de cuenta</label>
+        <select id="rol">
+          <option value="cliente">Cliente (Quiero cotizar y encargar piezas)</option>
+          <option value="vendedor">Taller / Fabricante 3D (Quiero recibir pedidos y cotizaciones)</option>
+        </select>
+
+        <div class="fila">
+          <div>
+            <label for="nombre">Nombre o Razón Social</label>
+            <input id="nombre" maxlength="50" placeholder="Ej. Juan Pérez o Taller 3D">
+          </div>
+          <div>
+            <label for="tel">Número de WhatsApp (con indicativo)</label>
+            <input id="tel" type="tel" inputmode="numeric" placeholder="573001234567">
+          </div>
+        </div>
+
+        <div id="datosVendedor" hidden>
+          <label for="nota">Especialidad o descripción corta</label>
+          <input id="nota" maxlength="80" placeholder="Ej. Prototipado rápido y resina de alta definición">
+
+          <div id="datosPrecios">
+            <div class="fila">
+              <div>
+                <label for="hora">Tarifa Máquina por Hora (COP)</label>
+                <input id="hora" type="number" min="500" step="100" value="3000">
+              </div>
+              <div>
+                <label for="margen">Margen Comercial (%)</label>
+                <input id="margen" type="number" min="0" max="200" value="20">
+              </div>
+            </div>
+
+            <label>Precios de bobinas iniciales (COP / kg)</label>
+            <div class="fila">
+              <div><label for="pla">PLA</label><input id="pla" type="number" min="0" step="1000" value="65000"></div>
+              <div><label for="petg">PETG</label><input id="petg" type="number" min="0" step="1000" value="75000"></div>
+            </div>
+            <div class="fila">
+              <div><label for="abs">ABS</label><input id="abs" type="number" min="0" step="1000" value="80000"></div>
+              <div><label for="tpu">TPU</label><input id="tpu" type="number" min="0" step="1000" value="110000"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-grupo" style="margin-top:16px;">
+          <button type="button" class="btn" id="guardar">Guardar Perfil en PHP</button>
+          <button type="button" class="btn peligro" id="borrar" hidden>Eliminar Cuenta</button>
+        </div>
+        <p class="aviso" id="mensajeRegistro"></p>
+      </div>
+
+      <div style="max-width:320px; margin:20px auto 0;">
+        <button type="button" class="btn claro" id="cerrar" hidden>Cerrar Sesión</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================================================
+       MODAL DE COMPROBANTE / TICKET IMPRIMIBLE
+       ============================================================== -->
+  <div class="modal-overlay" id="modalComprobante" hidden>
+    <div class="modal-contenido">
+      <div class="comprobante-ticket" id="ticketImprimible">
+        <div class="ticket-header">
+          <div style="display:flex; justify-content:center; margin-bottom:10px;">
+            <img src="icon-light.png" alt="PrintAnts" class="logo-claro" style="height:44px; width:auto; object-fit:contain;">
+            <img src="icon-dark.png" alt="PrintAnts" class="logo-oscuro" style="height:44px; width:auto; object-fit:contain;">
+          </div>
+          <h2>PRESUPUESTO OFICIAL · PRINTANTS</h2>
+          <div class="ticket-id" id="ticketId">COT-2026-001</div>
+          <div class="suave" id="ticketFecha">Fecha: 2026-10-21</div>
+        </div>
+
+        <div class="fila">
+          <div>
+            <span class="nota">CLIENTE:</span>
+            <div id="ticketCliente" style="font-weight:600;">Cliente</div>
+          </div>
+          <div>
+            <span class="nota">TALLER:</span>
+            <div id="ticketTaller" style="font-weight:600;">Taller 3D</div>
+          </div>
+        </div>
+
+        <table class="ticket-tabla">
+          <tr>
+            <td>Pieza / Modelo</td>
+            <td id="ticketPieza" style="text-align:right; font-weight:600;">Prototipo</td>
+          </tr>
+          <tr>
+            <td>Material / Filamento</td>
+            <td id="ticketMaterial" style="text-align:right; font-weight:600;">PLA</td>
+          </tr>
+          <tr>
+            <td>Tiempo estimado de corte</td>
+            <td id="ticketTiempo" style="text-align:right;">3h 15m</td>
+          </tr>
+          <tr>
+            <td>Peso neto de material</td>
+            <td id="ticketPeso" style="text-align:right;">70 g</td>
+          </tr>
+          <tr>
+            <td>Cantidad solicitada</td>
+            <td id="ticketCantidad" style="text-align:right;">1 ud</td>
+          </tr>
+          <tr>
+            <td>Costo tiempo máquina</td>
+            <td id="ticketCostoTiempo" style="text-align:right;" class="mono">$0</td>
+          </tr>
+          <tr>
+            <td>Costo filamento</td>
+            <td id="ticketCostoMaterial" style="text-align:right;" class="mono">$0</td>
+          </tr>
+          <tr>
+            <td>Margen comercial</td>
+            <td id="ticketCostoMargen" style="text-align:right;" class="mono">$0</td>
+          </tr>
+        </table>
+
+        <div class="ticket-total">
+          <span style="font-size:0.9rem; color:var(--texto-secundario); font-weight:normal;">TOTAL ESTIMADO: </span>
+          <span id="ticketTotal">$0 COP</span>
+        </div>
+
+        <div class="ticket-footer">
+          <p>Documento informativo generado mediante la red de talleres PrintAnts 3D.</p>
+          <p>Validez del presupuesto: 15 días calendario.</p>
+        </div>
+      </div>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn" id="btnImprimirTicket">Imprimir / Guardar PDF</button>
+        <button type="button" class="btn claro" id="btnCerrarModal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor flotante de notificaciones Toast -->
+  <div id="toastContenedor" aria-live="polite"></div>
+
+  <!-- Lógica completa de cliente y sincronización -->
+  <script src="app.js"></script>
+</body>
+</html>
